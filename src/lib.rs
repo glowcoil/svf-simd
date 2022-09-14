@@ -93,10 +93,13 @@ impl Svf for Mat3x3 {
         let g = (std::f32::consts::PI * (cutoff / sample_rate)).tan();
         let k = 2.0 - 2.0 * res;
 
-        let denom = Simd::splat(1.0 / (g * g + g * k + 1.0));
-        self.col0 = denom * Simd::from([-(g * g + g * k - 1.0), 2.0 * g, 2.0 * g, 0.0]);
-        self.col1 = denom * Simd::from([-2.0 * g, -(g * g - g * k - 1.0), 2.0 * g * k + 2.0, 0.0]);
-        self.col2 = denom * Simd::from([g, g * g, g * g, 0.0]);
+        let a1 = 1.0 / (1.0 + g * (g + k));
+        let a2 = g * a1;
+        let a3 = g * a2;
+
+        self.col0 = Simd::from([(2.0 * a1 - 1.0), 2.0 * a2, a2, 0.0]);
+        self.col1 = Simd::from([2.0 * a3, 1.0 - 2.0 * a3, 1.0 - a3, 0.0]);
+        self.col2 = Simd::from([0.0, 2.0 * a3, a3, 0.0]);
     }
 
     #[inline]
